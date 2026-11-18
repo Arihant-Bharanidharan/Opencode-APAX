@@ -39,6 +39,8 @@ import { RunManifestStore } from "./runtime/run-manifest.js"
 import { RunCoordinator } from "./runtime/coordinator.js"
 import { MixedStrategyScheduler } from "./runtime/mixed-strategy.js"
 import { PortfolioRouter } from "./runtime/portfolio-router.js"
+import { MultiApiManager } from "./runtime/multi-api.js"
+import { defaultMultiApiConfig } from "./runtime/deploy-router.js"
 import { TrustStore } from "./runtime/trust.js"
 import { CheckpointManager } from "./runtime/checkpoint.js"
 import { PolicyStore } from "./runtime/policy.js"
@@ -116,7 +118,7 @@ const sanitizeError = (error: unknown): string => {
 
 const AUTHOR = "Arihant Bharanidharan"
 const EMAIL = "arihantbharani@outlook.com"
-const VERSION = "2.0.0"
+const VERSION = "2.1.0"
 
 /**
  * Secret watermark: encodes "SWARMLITE/ARIHANT BHARANIDHARAN/2026" as Unicode
@@ -654,6 +656,7 @@ export default Plugin.define({
       trust: trustStore,
       stats: runtimeStats,
     })
+    const apiManager = new MultiApiManager(defaultMultiApiConfig())
 
     /** Read + parse the role registry (missing/unreadable file = registry-only built-ins). */
     const loadRoles = (): RoleBlock[] => {
@@ -724,6 +727,7 @@ export default Plugin.define({
       coordinator: runCoordinator,
       mixedStrategy: mixedStrategyScheduler,
       portfolioRouter,
+      apiManager,
     })
     await ctx.tool.transform((editor) => {
       for (const tool of runtimeTools) {

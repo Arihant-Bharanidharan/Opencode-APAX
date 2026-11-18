@@ -1096,3 +1096,125 @@ export interface DecisionRecord {
   reasons: string[]
   data?: Record<string, unknown>
 }
+
+// ============================================================
+// v2.1: Multi-API + multimodel + feature router
+// DeploymentMode governs how the router assigns models/APIs to lanes:
+//   semi_adaptive  -> every lane uses the parent model; multiple APIs are
+//                     used only to raise rate limits (current v2 features + multi-API)
+//   full_adaptive  -> the router decides model + API per lane from task
+//                     features (intelligence vs cost trade-off)
+// ============================================================
+
+export type DeploymentMode = "semi_adaptive" | "full_adaptive"
+
+export type ModelTier = "economy" | "standard" | "premium" | "frontier"
+
+export interface ApiEndpoint {
+  id: string
+  name: string
+  provider: string
+  baseUrl: string
+  apiKeyEnv: string
+  models: string[]
+  rateLimitPerSecond: number
+  burst: number
+  costTier: 0 | 1 | 2 | 3
+  intelligence: number // 0..1 relative intelligence score
+  enabled: boolean
+}
+
+export interface MultiApiConfig {
+  endpoints: ApiEndpoint[]
+  defaultProvider: string
+  loadBalancing: "round_robin" | "least_loaded" | "fastest"
+  failover: boolean
+}
+
+export interface RouterPolicy {
+  mode: DeploymentMode
+  parentModel: string
+  intelligenceThreshold: number // 0..1; task intelligence above this uses premium/frontier
+  costBudgetSeconds?: number // max cost budget in seconds-equivalent
+  preferCheap: boolean // bias toward cheaper models when intelligence is sufficient
+  maxConcurrentPerApi: number
+}
+
+export interface ModelTierProfile {
+  tier: ModelTier
+  models: string[]
+  minIntelligence: number
+  maxIntelligence: number
+  costMultiplier: number
+  speedMultiplier: number
+}
+
+export interface LaneDeployment {
+  laneId: string
+  role: string
+  category: Category
+  model: string
+  provider: string
+  apiEndpointId: string
+  modelTier: ModelTier
+  reason: string
+  estimatedCost: number
+  estimatedIntelligence: number
+}
+
+export interface DeploymentPlan {
+  runId: string
+  mode: DeploymentMode
+  parentModel: string
+  deployments: LaneDeployment[]
+  totalEstimatedCost: number
+  totalEstimatedIntelligence: number
+  apiUsage: Record<string, number> // endpointId -> lane count
+  reasons: string[]
+  warnings: string[]
+}
+
+// Extend TaskInput with v2.1 fields (declared here to avoid circular imports)
+export interface TaskInput {
+  task: string
+  category?: Category
+  branches?: number
+  branchSeconds?: number
+  independence?: number
+  sharedContext?: number
+  ambiguity?: number
+  risk?: number
+  verificationValue?: number
+  qualityWeight?: number
+  contextTokens?: number
+  outputTokens?: number
+  role?: string
+  model?: string
+  provider?: string
+  warm?: boolean
+  capsule?: string
+  capsuleVersion?: number
+  tasks?: MicroTask[]
+  nodes?: DagNode[]
+  edges?: Array<[string, string]>
+  criticalPathSeconds?: number
+  dependencies?: boolean
+  verificationLevel?: VerificationLevel
+  budget?: Partial<Budget>
+  deterministicTests?: boolean
+  testStrength?: number
+  disagreement?: number
+  confidence?: number
+  files?: string[]
+  sla?: SlaMode
+  deadlineSeconds?: number
+  qualityLevel?: QualityLevel
+  targetConfidence?: number
+  chaosMode?: boolean
+  // v2.1: multi-API / multimodel
+  deploymentMode?: DeploymentMode
+  intelligence?: number // 0..1 required intelligence for this task
+  costBudget?: number // max cost budget
+  apiExclude?: string[] // endpoint IDs to exclude
+  apiPrefer?: string[] // preferred endpoint IDs in order
+}

@@ -28,6 +28,7 @@ import type {
   SchedulerDashboard,
   SlaMode,
   TaskInput,
+  DeploymentMode,
   VerificationInput,
   VerificationLevel,
   WasteBreakdown,
@@ -44,6 +45,12 @@ import { RunCoordinator } from "./coordinator.js"
 import type { RunManifestStore } from "./run-manifest.js"
 import { MixedStrategyScheduler } from "./mixed-strategy.js"
 import { PortfolioRouter } from "./portfolio-router.js"
+import type { MultiApiManager } from "./multi-api.js"
+import {
+  createDeploymentPlan,
+  defaultMultiApiConfig,
+  routerPolicyFromInput,
+} from "./deploy-router.js"
 import { chooseVerification } from "./verify.js"
 import { clusterFindings } from "./cluster.js"
 import { scheduleDag } from "./schedule.js"
@@ -70,6 +77,7 @@ export interface SwarmToolDeps {
   coordinator: RunCoordinator
   mixedStrategy: MixedStrategyScheduler
   portfolioRouter: PortfolioRouter
+  apiManager: MultiApiManager
 }
 
 export interface ToolResult {
@@ -148,6 +156,15 @@ const TASK_PROPS: Record<string, unknown> = {
   warm: { type: "boolean", description: "Reuse a compatible idle lane if available." },
   capsule: { type: "string", description: "Versioned context capsule name to attach." },
   capsuleVersion: { type: "number" },
+  deploymentMode: {
+    type: "string",
+    enum: ["semi_adaptive", "full_adaptive"],
+    description: "v2.1 deployment mode: semi_adaptive (parent model on multiple APIs) or full_adaptive (router picks model/API per lane).",
+  },
+  intelligence: { type: "number", description: "v2.1: required intelligence 0..1 for this task." },
+  costBudget: { type: "number", description: "v2.1: max cost budget (seconds-equivalent)." },
+  apiExclude: { type: "array", items: { type: "string" }, description: "v2.1: endpoint IDs to exclude." },
+  apiPrefer: { type: "array", items: { type: "string" }, description: "v2.1: preferred endpoint IDs in order." },
   tasks: {
     type: "array",
     description: "Independent microtasks for batching.",
@@ -222,6 +239,17 @@ function taskInput(raw: any): TaskInput {
   if (raw?.warm !== undefined) input.warm = bool(raw.warm)
   if (raw?.capsule !== undefined) input.capsule = str(raw.capsule)
   if (raw?.capsuleVersion !== undefined) input.capsuleVersion = num(raw.capsuleVersion)
+  if (raw?.deploymentMode !== undefined) input.deploymentMode = str(raw.deploymentMode) as DeploymentMode
+  const intelligence = num(raw?.intelligence)
+  if (intelligence !== undefined) input.intelligence = intelligence
+  const costBudget = num(raw?.costBudget)
+  if (costBudget !== undefined) input.costBudget = costBudget
+  if (Array.isArray(raw?.apiExclude)) {
+    input.apiExclude = raw.apiExclude.filter((x: unknown): x is string => typeof x === "string")
+  }
+  if (Array.isArray(raw?.apiPrefer)) {
+    input.apiPrefer = raw.apiPrefer.filter((x: unknown): x is string => typeof x === "string")
+  }
   if (Array.isArray(raw?.tasks)) {
     const tasks: MicroTask[] = []
     for (const t of raw.tasks) {
@@ -282,6 +310,7 @@ export function createSwarmTools(deps: SwarmToolDeps): SwarmTool[] {
     coordinator,
     mixedStrategy,
     portfolioRouter,
+    apiManager,
   } = deps
 
   const planTool: SwarmTool = {
@@ -1358,6 +1387,83 @@ export function createSwarmTools(deps: SwarmToolDeps): SwarmTool[] {
     },
   }
 
+  const deployTool: SwarmTool = {
+    name: "swarm_deploy",
+    description:
+      "v2.1 multi-API / multimodel deployment planner. Builds a DeploymentPlan assigning each lane a model, tier and API endpoint from task features (intelligence vs cost trade-off). Two modes: semi_adaptive (every lane uses the parent model; multiple APIs only for rate-limit headroom) and full_adaptive (router picks model+API per lane). Enforces a cost budget and warns when lanes cannot be assigned. No real HTTP calls.",
+    input: objectSchema(
+      {
+        ...TASK_PROPS,
+        model: { type: "string", description: "Parent model (semi_adaptive) or override model." },
+      },
+      ["task"],
+    ),
+    execute: (raw) => {
+      try {
+        const input = taskInput(raw)
+        if (!input.task) return fail("task is required")
+        const policy = routerPolicyFromInput(input)
+        if (raw?.model !== undefined) policy.parentModel = str(raw.model)
+        const plan = createDeploymentPlan(input, apiManager, undefined, policy)
+        return ok(plan, { runId: plan.runId, mode: plan.mode, lanes: plan.deployments.length, cost: plan.totalEstimatedCost, warnings: plan.warnings.length })
+      } catch (e) {
+        return fail(e instanceof Error ? e.message : String(e))
+      }
+    },
+  }
+
+  const multiRouteTool: SwarmTool = {
+    name: "swarm_multi_route",
+    description:
+      "v2.1 multi-API control plane read-only. Lists registered API endpoints with health (circuit-breaker state, lane count, failures, cooldown remaining), rate-limit token buckets, and the best endpoint selection for a given model honoring exclusions and preferences. Use before swarm_deploy to see where lanes can land.",
+    input: objectSchema(
+      {
+        model: { type: "string", description: "Model to select an endpoint for (optional; lists all endpoints when omitted)." },
+        exclude: { type: "array", items: { type: "string" }, description: "Endpoint IDs to exclude from selection." },
+        prefer: { type: "array", items: { type: "string" }, description: "Preferred endpoint IDs in order." },
+      },
+      [],
+    ),
+    execute: (raw) => {
+      try {
+        const model = str(raw?.model) || undefined
+        const exclude = Array.isArray(raw?.exclude) ? raw.exclude.filter((x: unknown): x is string => typeof x === "string") : []
+        const prefer = Array.isArray(raw?.prefer) ? raw.prefer.filter((x: unknown): x is string => typeof x === "string") : []
+        const endpoints = apiManager.listEndpoints().map((ep) => {
+          const snap = apiManager.snapshot().find((s) => s.id === ep.id)
+          return {
+            id: ep.id,
+            name: ep.name,
+            provider: ep.provider,
+            models: ep.models,
+            enabled: ep.enabled,
+            costTier: ep.costTier,
+            intelligence: ep.intelligence,
+            rateLimitPerSecond: ep.rateLimitPerSecond,
+            burst: ep.burst,
+            state: snap?.state ?? "unknown",
+            laneCount: snap?.laneCount ?? 0,
+            failures: snap?.failures ?? 0,
+            cooldownRemaining: snap?.cooldownRemaining ?? 0,
+          }
+        })
+        const selection = model ? apiManager.selectEndpoint(model, exclude, prefer) : null
+        return ok(
+          {
+            endpoints,
+            defaultProvider: apiManager.getDefaultProvider(),
+            selection: selection
+              ? { endpointId: selection.endpointId, provider: selection.endpoint.provider, retryMs: selection.retryMs }
+              : null,
+          },
+          { endpoints: endpoints.length, selected: selection ? selection.endpointId : null },
+        )
+      } catch (e) {
+        return fail(e instanceof Error ? e.message : String(e))
+      }
+    },
+  }
+
   return [
     planTool,
     routeTool,
@@ -1381,5 +1487,7 @@ export function createSwarmTools(deps: SwarmToolDeps): SwarmTool[] {
     planWithSlaTool,
     coordinateTool,
     recoverTool,
+    deployTool,
+    multiRouteTool,
   ]
 }

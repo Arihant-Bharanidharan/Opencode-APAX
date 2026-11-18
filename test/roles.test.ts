@@ -171,7 +171,7 @@ const manual = skillContent("manual", MEM, 5, false, 0, RELAY, blocks, ROLES)
 check("skill: manual mode renders the registry too", manual.includes("### Security auditor lane (custom)"))
 check("skill: manual mode keeps the registry contract", manual.includes("### Role registry - add, modify, or broaden roles yourself"))
 
-check("package.json version matches VERSION in src/index.ts", pkg.version === "2.0.0")
+check("package.json version matches VERSION in src/index.ts", pkg.version === "2.1.0")
 
 console.log(`\n${pass} passed, ${fail} failed`)
 if (fail > 0) process.exit(1)
