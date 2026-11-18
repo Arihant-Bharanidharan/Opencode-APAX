@@ -26,11 +26,13 @@ measured speedup bar before any worker is spawned.
 - 🛡️ **Crash recovery** — durable run manifests, checkpoints, selective rollback
 - ✅ **Adaptive verification** — V0 self-check → V4 adversarial verifier
 - 🧪 **Benchmark-driven** — 991 tests, published numbers including a case where the swarm *lost*
+- 🔄 **Two deployment modes** — `semi_adaptive` (default) and `full_adaptive` cost-optimized routing
 
 ## Contents
 
 - [Quick start](#quick-start)
 - [Why it exists](#why-it-exists)
+- [v2.1.0 Release](#v210-release)
 - [Benchmarks](#benchmarks)
 - [Adaptive decision example](#adaptive-decision-example)
 - [Architecture](#architecture)
@@ -124,6 +126,30 @@ independent workloads get batched, speculative, or full-swarm execution.
 The runtime is benchmark-driven, not a "spawn lots of bots" demo. It publishes measured
 speedups — including a case where swarm *lost* on small work — and uses those results to
 drive its cost-aware decisions.
+
+---
+
+## v2.1.0 Release
+
+### Two deployment modes
+
+- **`semi_adaptive`** (default): every lane uses the parent model; multiple APIs are
+  used only for rate-limit headroom. This is the simplest mode, ideal when you want
+  consistent model selection across all lanes.
+
+- **`full_adaptive`**: the router decides model + API per lane from task features
+  (intelligence requirements, cost budget, provider health). Enables cost-optimized
+  routing across different model tiers.
+
+### Control plane (v2.1)
+
+The v2.1 control plane tracks:
+- Per-endpoint rate limits and circuit-breaker health
+- Lane counts and load balancing
+- Failover behavior for endpoint failures
+
+All control plane decisions are made without real HTTP calls — it's a planning layer
+that selects model/API combinations based on static endpoint profiles.
 
 ---
 
@@ -425,6 +451,24 @@ Documented options (all read from `opencode.json` plugin options; full reference
 Runtime state files live under `stateDir` (stats, provider health, lanes, capsules,
 telemetry, history, trust, policy, run manifests, checkpoints). Memory, relay, and
 roles files live alongside (configurable via `memoryPath`, `relayPath`, `rolesPath`).
+
+### Deployment modes (v2.1)
+
+| Mode | Description |
+|---|---|
+| `semi_adaptive` | Default. Every lane uses the parent model; multiple APIs are used only for rate-limit headroom |
+| `full_adaptive` | Router decides model + API per lane from task features (intelligence, cost budget, provider health) |
+
+Override the mode in your task input:
+
+```json
+{
+  "deploymentMode": "full_adaptive",
+  "intelligence": 0.8,
+  "costBudget": 30,
+  "model": "mimo-v2.6-flash-free"
+}
+```
 
 ---
 
