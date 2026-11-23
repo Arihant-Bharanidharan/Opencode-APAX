@@ -5,7 +5,7 @@
  */
 import { decodeWatermark, WATERMARK } from "../src/index.js"
 
-const SECRET = "SWARMLITE/ARIHANT BHARANIDHARAN/2026"
+const SECRET = "APAX/ARIHANT BHARANIDHARAN/2026"
 
 /**
  * Mirror of the plugin's encoder: each ASCII char -> Unicode tag codepoint
