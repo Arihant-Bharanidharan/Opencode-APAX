@@ -7,7 +7,7 @@ are reviewed, and what we expect of contributions.
 ## Getting started
 
 ```bash
-git clone https://github.com/Arihant-Bharanidharan/opencode-apax.git
+git clone https://github.com/Arihant-Bharanidharan/Opencode-APAX.git
 cd opencode-apax
 bun install
 ```

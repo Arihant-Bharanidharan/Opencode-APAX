@@ -26,12 +26,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Arihant-Bharanidharan/opencode-apax.git"
+    "url": "git+https://github.com/Arihant-Bharanidharan/Opencode-APAX.git"
   },
   "bugs": {
-    "url": "https://github.com/Arihant-Bharanidharan/opencode-apax/issues"
+    "url": "https://github.com/Arihant-Bharanidharan/Opencode-APAX/issues"
   },
-  "homepage": "https://github.com/Arihant-Bharanidharan/opencode-apax#readme",
+  "homepage": "https://github.com/Arihant-Bharanidharan/Opencode-APAX#readme",
   "exports": {
     ".": "./src/index.ts"
   },

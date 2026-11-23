@@ -5,7 +5,7 @@ All notable changes to `opencode-apax` are documented in this file.
 ## [2.2.0] — APAX Branding & Repo Rename
 
 - Package renamed from `opencode-swarm-lite` to `opencode-apax`
-- Repository URL updated to `github.com/Arihant-Bharanidharan/opencode-apax`
+- Repository URL updated to `github.com/Arihant-Bharanidharan/Opencode-APAX`
 - Brand name: APAX (Adaptive Framework for Predictive Multi-Agent Task Scheduling and Execution)
 - Version bump from 2.1.0 to 2.2.0
 

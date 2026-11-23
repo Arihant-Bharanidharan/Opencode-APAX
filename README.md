@@ -3,7 +3,7 @@
 > **APAX: An Adaptive Framework for Predictive Multi-Agent Task Scheduling and Execution**
 
 [![npm version](https://img.shields.io/npm/v/opencode-apax.svg)](https://www.npmjs.com/package/opencode-apax)
-[![CI](https://github.com/Arihant-Bharanidharan/opencode-apax/actions/workflows/ci.yml/badge.svg)](https://github.com/Arihant-Bharanidharan/opencode-apax/actions/workflows/ci.yml)
+[![CI](https://github.com/Arihant-Bharanidharan/Opencode-APAX/workflows/ci.yml/badge.svg)](https://github.com/Arihant-Bharanidharan/Opencode-APAX/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-991%20passed-brightgreen)](#testing)
 [![license](https://img.shields.io/npm/l/opencode-apax.svg)](LICENSE)
 
@@ -92,7 +92,7 @@ with defaults.
 <summary>Installing from a source checkout instead</summary>
 
 ```bash
-git clone https://github.com/Arihant-Bharanidharan/opencode-apax.git
+git clone https://github.com/Arihant-Bharanidharan/Opencode-APAX.git
 cd opencode-apax
 bun install
 bun run typecheck
