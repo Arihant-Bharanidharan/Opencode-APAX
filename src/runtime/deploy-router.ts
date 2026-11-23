@@ -1,5 +1,5 @@
 /**
- * Deployment router / planner for opencode-swarm-lite v2.1.
+ * Deployment router / planner for opencode-apax v2.2.
  *
  * Takes a TaskInput + MultiApiManager and returns a DeploymentPlan with
  * per-lane model/API/tier assignments. Two deployment modes:

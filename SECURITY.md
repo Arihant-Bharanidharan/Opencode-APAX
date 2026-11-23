@@ -2,7 +2,7 @@
 
 ## Responsible disclosure
 
-If you discover a security issue in `opencode-swarm-lite`, please report it
+If you discover a security issue in `opencode-apax`, please report it
 responsibly. Do not open a public issue for vulnerabilities. Contact the project
 maintainer through GitHub's private vulnerability reporting feature, or open a
 private advisory.

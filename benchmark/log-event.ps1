@@ -9,7 +9,7 @@ param(
 # (src/runtime/telemetry.ts RuntimeEventType) where applicable; SKIP_VERIFY
 # and COMPLETE are harness-only labels (not in the runtime enum).
 # Appends one JSONL record to benchmark/logs/events.jsonl.
-$repo = "C:\Users\B.Shanker\opencode-swarm-lite"
+$repo = "C:\Users\B.Shanker\opencode-apax"
 $logDir = Join-Path $repo "benchmark\logs"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 $logFile = Join-Path $logDir "events.jsonl"

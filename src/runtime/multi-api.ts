@@ -1,5 +1,5 @@
 /**
- * Multi-API management for opencode-swarm-lite v2.1.
+ * Multi-API management for opencode-apax v2.2.
  *
  * Registers multiple API endpoints/providers, tracks per-endpoint rate
  * limits and circuit-breaker health, and load-balances lanes across APIs

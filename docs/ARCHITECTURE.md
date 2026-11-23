@@ -1,6 +1,6 @@
 # Architecture
 
-`opencode-swarm-lite` is an adaptive multi-model agent orchestration runtime for
+`opencode-apax` is an adaptive multi-model agent orchestration runtime for
 OpenCode. This document explains the runtime's components, data flow, and failure /
 recovery behavior.
 

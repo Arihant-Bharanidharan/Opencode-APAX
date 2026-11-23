@@ -1,6 +1,6 @@
 # Configuration
 
-`opencode-swarm-lite` is configured through OpenCode plugin options in
+`opencode-apax` is configured through OpenCode plugin options in
 `~/.config/opencode/opencode.json` (or a project `opencode.json`). All options are
 optional; defaults are shown below.
 
@@ -40,7 +40,7 @@ optional; defaults are shown below.
 {
   "plugins": [
     {
-      "package": "file:///C:/path/to/opencode-swarm-lite",
+      "package": "file:///C:/path/to/opencode-apax",
       "options": {
         "mode": "adaptive",
         "ratePerSecond": 4,

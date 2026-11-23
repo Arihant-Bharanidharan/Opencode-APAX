@@ -7,7 +7,7 @@ param(
 # Timed single-task test run for the serial baseline.
 # Appends one JSONL record to benchmark/logs/serial.jsonl.
 $ErrorActionPreference = "Continue"
-$repo = "C:\Users\B.Shanker\opencode-swarm-lite"
+$repo = "C:\Users\B.Shanker\opencode-apax"
 $logDir = Join-Path $repo "benchmark\logs"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 $logFile = Join-Path $logDir "serial.jsonl"

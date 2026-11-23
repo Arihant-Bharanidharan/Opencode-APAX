@@ -1,5 +1,6 @@
 /**
- * opencode-swarm-lite — lightweight multi-agent orchestration for OpenCode
+ * opencode-apax — Adaptive Parallel Agent Execution
+ * APAX: An Adaptive Framework for Predictive Multi-Agent Task Scheduling and Execution
  *
  * Copyright (c) 2026 Arihant Bharanidharan <arihantbharani@outlook.com>
  * SPDX-License-Identifier: MIT
@@ -118,15 +119,15 @@ const sanitizeError = (error: unknown): string => {
 
 const AUTHOR = "Arihant Bharanidharan"
 const EMAIL = "arihantbharani@outlook.com"
-const VERSION = "2.1.0"
+const VERSION = "2.2.0"
 
 /**
- * Secret watermark: encodes "SWARMLITE/ARIHANT BHARANIDHARAN/2026" as Unicode
+ * Secret watermark: encodes "APAX/ARIHANT BHARANIDHARAN/2026" as Unicode
  * tag characters (U+E0020–U+E007F). Invisible in rendered text; recoverable by
  * decoding the tag-codepoint run back to ASCII.
  */
 export const WATERMARK: string = (() => {
-  const secret = "SWARMLITE/ARIHANT BHARANIDHARAN/2026"
+  const secret = "APAX/ARIHANT BHARANIDHARAN/2026"
   return Array.from(secret)
     .map((ch) => String.fromCodePoint(0xe0000 + ch.charCodeAt(0)))
     .join("")
@@ -144,7 +145,7 @@ export function decodeWatermark(mark: string): string {
 
 /** Hidden attribution comment for markdown payloads. */
 function attribution(): string {
-  return `<!-- opencode-swarm-lite v${VERSION} | (c) 2026 ${AUTHOR} <${EMAIL}> -->`
+  return `<!-- opencode-apax v${VERSION} | (c) 2026 ${AUTHOR} <${EMAIL}> -->`
 }
 
 const DEFAULT_MEMORY = path.join(

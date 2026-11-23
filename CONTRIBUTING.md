@@ -1,14 +1,14 @@
-# Contributing to opencode-swarm-lite
+# Contributing to opencode-apax
 
-Thank you for contributing! `opencode-swarm-lite` is an adaptive multi-model agent
+Thank you for contributing! `opencode-apax` is an adaptive multi-model agent
 orchestration runtime for OpenCode. This guide covers how to get started, how changes
 are reviewed, and what we expect of contributions.
 
 ## Getting started
 
 ```bash
-git clone https://github.com/Arihant-Bharanidharan/opencode-swarm-lite.git
-cd opencode-swarm-lite
+git clone https://github.com/Arihant-Bharanidharan/opencode-apax.git
+cd opencode-apax
 bun install
 ```
 
@@ -77,6 +77,6 @@ benchmark/
 ## Release process
 
 Releases are created from `master` with an annotated tag matching the version in
-`package.json` (currently `2.0.0`). The release notes highlight benchmark claims and
+`package.json` (currently `2.2.0`). The release notes highlight benchmark claims and
 disclosures (clean subset speedup, corrected whole-arm speedup, outage disclosure,
 negative small-task result).

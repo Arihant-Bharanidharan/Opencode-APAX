@@ -1,13 +1,13 @@
-# opencode-swarm-lite
+# opencode-apax
 
-> **An adaptive execution runtime that knows when to swarm — and when not to.**
+> **APAX: An Adaptive Framework for Predictive Multi-Agent Task Scheduling and Execution**
 
-[![npm version](https://img.shields.io/npm/v/opencode-swarm-lite.svg)](https://www.npmjs.com/package/opencode-swarm-lite)
-[![CI](https://github.com/Arihant-Bharanidharan/opencode-swarm-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/Arihant-Bharanidharan/opencode-swarm-lite/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/opencode-apax.svg)](https://www.npmjs.com/package/opencode-apax)
+[![CI](https://github.com/Arihant-Bharanidharan/opencode-apax/actions/workflows/ci.yml/badge.svg)](https://github.com/Arihant-Bharanidharan/opencode-apax/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-991%20passed-brightgreen)](#testing)
-[![license](https://img.shields.io/npm/l/opencode-swarm-lite.svg)](LICENSE)
+[![license](https://img.shields.io/npm/l/opencode-apax.svg)](LICENSE)
 
-`opencode-swarm-lite` is an adaptive multi-model agent orchestration runtime for
+`opencode-apax` is an adaptive multi-model agent orchestration runtime for
 [OpenCode](https://opencode.ai). It predicts whether parallel agents are worth
 spawning, chooses different execution strategies across task subgraphs, routes work
 according to model/provider health and trust, adapts verification effort, and can
@@ -53,9 +53,9 @@ measured speedup bar before any worker is spawned.
 **1. Install from npm:**
 
 ```bash
-npm install opencode-swarm-lite
+npm install opencode-apax
 # or
-bun add opencode-swarm-lite
+bun add opencode-apax
 ```
 
 **2. Register the plugin** in `~/.config/opencode/opencode.json` (or a project
@@ -65,7 +65,7 @@ bun add opencode-swarm-lite
 {
   "plugins": [
     {
-      "package": "opencode-swarm-lite",
+      "package": "opencode-apax",
       "options": {
         "mode": "adaptive",
         "ratePerSecond": 4,
@@ -92,8 +92,8 @@ with defaults.
 <summary>Installing from a source checkout instead</summary>
 
 ```bash
-git clone https://github.com/Arihant-Bharanidharan/opencode-swarm-lite.git
-cd opencode-swarm-lite
+git clone https://github.com/Arihant-Bharanidharan/opencode-apax.git
+cd opencode-apax
 bun install
 bun run typecheck
 bun run test
@@ -105,7 +105,7 @@ Then point the plugin at the local path:
 {
   "plugins": [
     {
-      "package": "file:///C:/path/to/opencode-swarm-lite",
+      "package": "file:///C:/path/to/opencode-apax",
       "options": { "mode": "adaptive" }
     }
   ]
@@ -119,7 +119,7 @@ Then point the plugin at the local path:
 ## Why it exists
 
 Naive agent swarms often waste time: startup, coordination, and verification overhead
-can exceed the useful work being parallelized. `opencode-swarm-lite` runs a cost model
+can exceed the useful work being parallelized. `opencode-apax` runs a cost model
 before dispatching, so small or tightly coupled tasks stay serial while large,
 independent workloads get batched, speculative, or full-swarm execution.
 
